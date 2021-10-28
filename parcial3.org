@@ -1,0 +1,9 @@
+#+title: Taller 3
+
+
+la generalización del teorema anterior es denominada como el Tteorema del Valor
+Intermedio de Bolzano. En esencia lo que muestra este teorema es que si
+redefinimos a la función \(f\) por la función \(g(x) = f(x) - k = 0\), y con
+está utilizar el teorema de localización de raíces para encontrar una versíon
+generalizada donde la aproximación con respecto a cualquier punto \(k\) parte
+del coodominio de \(f\).
