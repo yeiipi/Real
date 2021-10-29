@@ -41,10 +41,10 @@ md"""
 #### Demostración
 
 
+"""
 
-
-
------
+# ╔═╡ 4c6fa641-2ce9-47d3-895c-e70aa8711823
+md"""-----
 """
 
 # ╔═╡ c6d9650f-2116-49b7-9b39-89d31aea74e8
@@ -312,18 +312,16 @@ function LocalizaciónDeRaíces(f,a,b,ϵ)
 	
 	# Inicialización de Arreglos para recolectar datos
 	p₁ = (a+b)/2
-	aₖ = Float64[a];bₖ = Float64[b];pₖ = Float64[p₁];fₚₖ = Float64[]
+	aₖ = Float64[a];bₖ = Float64[b];pₖ = Float64[p₁];fₚₖ = Float64[f(p₁)]
 	
 	# Inicio buscqueda de raiz
 	n = 1
 	# Verificando el valor del error
 	while (last(bₖ) - last(aₖ))/2 >= ϵ
 
-		append!(pₖ,(last(aₖ)+last(bₖ))/2)
 		fₚₙ = f(last(pₖ))
-		append!(fₚₖ,fₚₙ)
 		
-		# Redefiniendo nuevo límite
+		# Redefiniendo nuevas cotas
 		if  fₚₙ == 0
 			append!(aₖ,last(aₖ))
 			append!(bₖ,last(bₖ))
@@ -335,12 +333,10 @@ function LocalizaciónDeRaíces(f,a,b,ϵ)
 			append!(aₖ,last(aₖ))
 			append!(bₖ,last(pₖ))
 		end	
-		
-		print((last(bₖ) - last(aₖ))/2)
-		print(" - ")	
-		print(abs(first(bₖ) - first(aₖ))/(2^n+1))
-		print(" - ")
-		println(ϵ)
+
+		append!(fₚₖ,fₚₙ)
+		append!(pₖ,(last(aₖ)+last(bₖ))/2)
+
 		n += 1
 	end
 	
@@ -348,7 +344,6 @@ function LocalizaciónDeRaíces(f,a,b,ϵ)
 	k = 1:1:n
 	fₐₖ = Float64[f(i) for i ∈ aₖ];
 	fᵦₖ= Float64[f(i) for i ∈ bₖ];
-	append!(fₚₖ,f(last(pₖ)))
 	
 	# Uniendo todos los vectores en una única matriz (cada uno es una columna)
 	data = [ reshape(k, :, 1) reshape(aₖ, :, 1) reshape(bₖ, :, 1) reshape(pₖ, :, 1) reshape(fₐₖ, :, 1) reshape(fᵦₖ, :, 1) reshape(fₚₖ, :, 1)	]
@@ -440,27 +435,27 @@ function ValorIntermedioDeBolzano(f,a,b,ϵ,c)
 	# a: lím. inferior
 	# b: lím. superior
 	# ϵ: margen de error
+	# c: destino
 	
 	# return: Matrix{k x 7} 
 	
 	
 	# Inicialización de Arreglos para recolectar datos
 	p₁ = (a+b)/2
-	aₖ = Float64[a];bₖ = Float64[b];pₖ = Float64[p₁];fₚₖ = Float64[]
+	aₖ = Float64[a];bₖ = Float64[b];pₖ = Float64[p₁];fₚₖ = Float64[f(p₁)]
 	
 	# Inicio buscqueda de raiz
 	n = 1
 	# Verificando el valor del error
-	while abs(last(pₖ) - c) > ϵ
+	while abs(abs(last(fₚₖ) - c)) >= ϵ
 		
-		append!(pₖ,(last(aₖ)+last(bₖ))/2)
 		fₚₙ = f(last(pₖ))
-		append!(fₚₖ,fₚₙ)
 		
-		# Redefiniendo nuevo límite
+		# Redefiniendo nuevas cotas
 		if  fₚₙ == c
 			append!(aₖ,last(aₖ))
 			append!(bₖ,last(bₖ))
+			println("break")
 			break
 		elseif fₚₙ < c
 			append!(aₖ,last(pₖ))
@@ -470,19 +465,16 @@ function ValorIntermedioDeBolzano(f,a,b,ϵ,c)
 			append!(bₖ,last(pₖ))
 		end	
 		
-		print((last(bₖ) - last(aₖ))/2)
-		print(" - ")	
-		print(abs(first(bₖ) - first(aₖ))/(2^n+1))
-		print(" - ")
-		println(ϵ)
+		append!(pₖ,(last(aₖ)+last(bₖ))/2)
+		append!(fₚₖ,fₚₙ)
+
 		n += 1
 	end
 	
 	# Generando valores adicionales para la tabla indicada
-	k = 1:1:n+1
+	k = 1:1:n
 	fₐₖ = Float64[f(i) for i ∈ aₖ];
 	fᵦₖ= Float64[f(i) for i ∈ bₖ];
-	append!(fₚₖ,f(last(pₖ)))
 	
 	# Uniendo todos los vectores en una única matriz (cada uno es una columna)
 	data = [ reshape(k, :, 1) reshape(aₖ, :, 1) reshape(bₖ, :, 1) reshape(pₖ, :, 1) reshape(fₐₖ, :, 1) reshape(fᵦₖ, :, 1) reshape(fₚₖ, :, 1)	]
@@ -509,7 +501,8 @@ end
 
 # ╔═╡ f5a42fe7-d251-4a78-82b6-ed75a6877ec5
 begin
-	data₅ = ValorIntermedioDeBolzano(f₅,intervalo₅[1],intervalo₅[2],10^(-1),2)
+
+	data₅ = ValorIntermedioDeBolzano(f₅,intervalo₅[1],intervalo₅[2],10^(-3),2)
 	plot(f₅,xlims=[intervalo₅[1]-0.5  intervalo₅[2]+0.5],framestyle = :origin,label=L"f(\left[-2.5,1.5\right])")
 	C₅ = last(data₅[:,4])
 	vline!([intervalo₅[1]],linestyle=:dash, label=L"a",color=:green)
@@ -520,7 +513,7 @@ end
 
 # ╔═╡ 11f8afc8-5179-40ee-9582-5ad506f1520c
 with_terminal() do
-	
+
 	h = Highlighter(f = (data,i,j) -> ( (i == length(data₅[:,4])) && (j==4)), crayon = Crayon(bold = true, foreground = :green) )
 
 	pretty_table(
@@ -530,6 +523,14 @@ with_terminal() do
 		formatters = ft_printf("%10.5f")
 	)
 end
+
+# ╔═╡ 1e0b96a5-bb01-4469-a971-b7ede67b77d3
+md"""
+En esta nueva implementación se cambia la función de verificación, para ahora
+comprobar la distancia entre el punto al que queremos llegar en la imagen y
+en la imágen de la $p_k$ actual. Y de igual forma las condiciones para redefinir
+las cotas debusqueda cambiando $0$ por $c$.
+"""
 
 # ╔═╡ 02a2c5e1-952d-4fc8-9ad6-ba0df689794d
 md"""
@@ -1426,7 +1427,8 @@ version = "0.9.1+5"
 # ╠═81489072-35f1-11ec-24b5-990ad4e74186
 # ╟─41b578ef-32de-460e-9011-f99974e8c3cd
 # ╟─1ba0e012-ddcc-4625-9384-984c230d10cc
-# ╟─989bd1ac-1ad1-4684-b0d2-e49ed6251555
+# ╠═989bd1ac-1ad1-4684-b0d2-e49ed6251555
+# ╟─4c6fa641-2ce9-47d3-895c-e70aa8711823
 # ╟─c6d9650f-2116-49b7-9b39-89d31aea74e8
 # ╟─c2787d1f-f0d5-44e1-b363-6e21038b7258
 # ╟─04043070-6d02-49c8-8535-3edf0e8135c7
@@ -1452,12 +1454,13 @@ version = "0.9.1+5"
 # ╟─196026b0-c9f2-4a92-bc66-214353017bde
 # ╟─83284465-f365-4d1e-b340-6009c16a696c
 # ╟─a43ff36f-71c5-4025-ac26-812c71c0989e
-# ╟─c18a2365-6b48-4841-bda1-7fde61624684
 # ╟─26da60ef-a68b-4752-b099-d76f03c1f220
 # ╠═06b8fc10-7382-4173-bddb-f630750b99a7
 # ╠═ce1d4a23-d9be-4a16-bcc5-0ff702af1427
-# ╠═11f8afc8-5179-40ee-9582-5ad506f1520c
-# ╠═f5a42fe7-d251-4a78-82b6-ed75a6877ec5
+# ╟─c18a2365-6b48-4841-bda1-7fde61624684
+# ╟─11f8afc8-5179-40ee-9582-5ad506f1520c
+# ╟─f5a42fe7-d251-4a78-82b6-ed75a6877ec5
+# ╟─1e0b96a5-bb01-4469-a971-b7ede67b77d3
 # ╟─02a2c5e1-952d-4fc8-9ad6-ba0df689794d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
